@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B CRM - Add Company</title>
+    
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
+        .form-container { max-width: 400px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #00c853; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background-color: #009624; }
+        #statusMessage { margin-top: 15px; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Add New B2B Account</h2>
+        <form id="crmForm">
+            <div class="form-group">
+                <label for="companyName">Company Name:</label>
+                <input type="text" id="companyName" required placeholder="e.g., Acme Wholesale Ltd">
+            </div>
+            <div class="form-group">
+                <label for="companyAddress">Shipping Address:</label>
+                <input type="text" id="companyAddress" required placeholder="Street, City, Country">
+            </div>
+            <button type="submit">Save to CRM</button>
+        </form>
+        <div id="statusMessage"></div>
+    </div>
+
+    <script>
+        // Initialize Connection using the global 'supabase' object provided by unpkg
+        const SUPABASE_URL = "https://hutdwxxswfkamuqkzxin.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_p3GjTv-W-kC2eSndATE5tw_YpBiHC8r"; 
+        
+        // This is the correct browser global initialization format
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.getElementById('crmForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+            
+            console.log("Form submission triggered...");
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.style.color = "blue";
+            statusMessage.innerText = "Saving account...";
+
+            const name = document.getElementById('companyName').value;
+            const address = document.getElementById('companyAddress').value;
+
+            // Using the initialized client to insert data
+            const { data, error } = await supabaseClient
+                .from('companies')
+                .insert([
+                    { name: name, address: address }
+                ]);
+
+            console.log("Database response data:", data);
+            console.log("Database response error:", error);
+
+            if (error) {
+                statusMessage.style.color = "red";
+                statusMessage.innerText = "Error: " + error.message;
+            } else {
+                statusMessage.style.color = "green";
+                statusMessage.innerText = "Account successfully saved!";
+                document.getElementById('crmForm').reset(); 
+            }
+        });
+    </script>
+</body>
+</html>
